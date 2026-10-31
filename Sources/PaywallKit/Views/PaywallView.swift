@@ -68,6 +68,7 @@ public struct PaywallView<Header: View>: View {
     @StateObject private var model: PaywallViewModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
+    @ScaledMetric(relativeTo: .body) private var closeButtonClearance: CGFloat = 56
 
     private let header: Header
     private let onDismiss: (() -> Void)?
@@ -107,7 +108,7 @@ public struct PaywallView<Header: View>: View {
                 SubscriptionDisclosure(product: model.selectedProduct)
             }
             .padding(.horizontal, 20)
-            .padding(.top, 56) // room for the close button
+            .padding(.top, min(closeButtonClearance, 76)) // room for the (size-capped) close button
             .padding(.bottom, 16)
             .frame(maxWidth: 600)
             .frame(maxWidth: .infinity)
@@ -186,6 +187,9 @@ public struct PaywallView<Header: View>: View {
                     if model.isPurchasing { ProgressView() }
                 }
                 .font(.headline)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 6)
             }
@@ -211,6 +215,10 @@ public struct PaywallView<Header: View>: View {
         .padding(.top, 12)
         .padding(.bottom, 8)
         .frame(maxWidth: .infinity)
+        // The footer is pinned and always visible, so cap its text size: at the largest
+        // accessibility sizes it would otherwise cover most of the screen. The plans and
+        // disclosure above still scale fully.
+        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
         .background(.bar)
     }
 
