@@ -132,7 +132,7 @@ struct ComparisonTable: View {
                 .foregroundStyle(onGold ? AnyShapeStyle(Color.black.opacity(0.5)) : AnyShapeStyle(.tertiary))
         case .text(let text):
             Text(text)
-                .font(.subheadline.weight(onGold ? .bold : .regular))
+                .font(.body.weight(onGold ? .bold : .regular))
                 .foregroundStyle(onGold ? AnyShapeStyle(Color.black) : AnyShapeStyle(.secondary))
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)

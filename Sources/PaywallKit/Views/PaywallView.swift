@@ -108,13 +108,13 @@ public struct PaywallView<Header: View>: View {
     public var body: some View {
         let traits = style.traits
         template
-            .modifier(TemplateAppearance(traits: traits))
             .overlay(alignment: .topTrailing) {
                 // Drawn unconditionally, outside every template: visible in the first frame.
                 CloseButton(action: close)
                     .padding(.trailing, 12)
                     .padding(.top, 4)
             }
+            .modifier(TemplateAppearance(traits: traits))
             .task { await model.loadProducts() }
             .alert(
                 alertTitle,
