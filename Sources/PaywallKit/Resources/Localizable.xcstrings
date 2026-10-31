@@ -379,6 +379,96 @@
         }
       }
     },
+    "comparison.free": {
+      "comment": "Comparison table column header: free tier",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ücretsiz"
+          }
+        }
+      }
+    },
+    "comparison.included": {
+      "comment": "Comparison cell: feature included (VoiceOver)",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Included"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dahil"
+          }
+        }
+      }
+    },
+    "comparison.notIncluded": {
+      "comment": "Comparison cell: feature not included (VoiceOver)",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not included"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dahil değil"
+          }
+        }
+      }
+    },
+    "comparison.pro": {
+      "comment": "Comparison table column header: paid tier",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro"
+          }
+        }
+      }
+    },
+    "comparison.row.a11y": {
+      "comment": "VoiceOver label of a comparison row. %1$@ = feature, %2$@ = free value, %3$@ = pro value",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@. Free: %2$@. Pro: %3$@."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@. Ücretsiz: %2$@. Pro: %3$@."
+          }
+        }
+      }
+    },
     "disclosure.autoRenew": {
       "comment": "Auto-renewable subscription disclosure (Guideline 3.1.2)",
       "extractionState": "manual",
@@ -793,6 +883,60 @@
         }
       }
     },
+    "slide.continue": {
+      "comment": "Slide-to-confirm track text",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slide to continue"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devam etmek için kaydırın"
+          }
+        }
+      }
+    },
+    "slide.hint": {
+      "comment": "VoiceOver hint for SlideToConfirm",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Double-tap to confirm"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onaylamak için iki kez dokunun"
+          }
+        }
+      }
+    },
+    "slide.startTrial": {
+      "comment": "Slide-to-confirm track text when the plan has a free trial",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slide to start free trial"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ücretsiz denemeyi başlatmak için kaydırın"
+          }
+        }
+      }
+    },
     "state.error": {
       "comment": "Products failed to load",
       "extractionState": "manual",
@@ -825,6 +969,60 @@
           "stringUnit": {
             "state": "translated",
             "value": "Planlar yükleniyor…"
+          }
+        }
+      }
+    },
+    "stories.next": {
+      "comment": "Button: next story page",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next page"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sonraki sayfa"
+          }
+        }
+      }
+    },
+    "stories.position": {
+      "comment": "VoiceOver: story position. %1$lld = current page, %2$lld = page count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Page %1$lld of %2$lld"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayfa %1$lld / %2$lld"
+          }
+        }
+      }
+    },
+    "stories.previous": {
+      "comment": "Button: previous story page",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous page"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Önceki sayfa"
           }
         }
       }
