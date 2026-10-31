@@ -138,8 +138,27 @@ struct OrbitRing: View {
 }
 
 /// Gold padlock. When `isUnlocked`, the shackle lifts and swings open around its right leg.
+/// With Reduce Motion the locked and unlocked states crossfade instead of moving.
 struct VaultLockGlyph: View {
     let isUnlocked: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        if reduceMotion {
+            ZStack {
+                PadlockShape(shackleOpen: false).opacity(isUnlocked ? 0 : 1)
+                PadlockShape(shackleOpen: true).opacity(isUnlocked ? 1 : 0)
+            }
+        } else {
+            PadlockShape(shackleOpen: isUnlocked)
+        }
+    }
+}
+
+/// The padlock drawing in a fixed state.
+struct PadlockShape: View {
+    let shackleOpen: Bool
 
     private let gold = LinearGradient(colors: [PaywallPalette.gold, PaywallPalette.goldDeep],
                                       startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -149,8 +168,8 @@ struct VaultLockGlyph: View {
             Shackle()
                 .stroke(gold, style: StrokeStyle(lineWidth: 13, lineCap: .round))
                 .frame(width: 62, height: 74)
-                .rotationEffect(.degrees(isUnlocked ? -32 : 0), anchor: .bottomTrailing)
-                .offset(y: isUnlocked ? -16 : 0)
+                .rotationEffect(.degrees(shackleOpen ? -32 : 0), anchor: .bottomTrailing)
+                .offset(y: shackleOpen ? -16 : 0)
 
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(gold)
