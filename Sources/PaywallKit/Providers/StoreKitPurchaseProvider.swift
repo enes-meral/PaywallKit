@@ -29,7 +29,15 @@ public final class StoreKitPurchaseProvider: PurchaseProvider {
         guard let storeProduct = await cache.product(for: product.id) else {
             throw PaywallError.productNotFound(id: product.id)
         }
-        switch try await storeProduct.purchase() {
+        let result: Product.PurchaseResult
+        do {
+            result = try await storeProduct.purchase()
+        } catch StoreKitError.userCancelled {
+            // StoreKit may report a cancellation by throwing instead of returning
+            // `.userCancelled`. It is not an error from the user's point of view.
+            return .userCancelled
+        }
+        switch result {
         case .success(let verification):
             let transaction = try Self.verified(verification)
             await transaction.finish()
