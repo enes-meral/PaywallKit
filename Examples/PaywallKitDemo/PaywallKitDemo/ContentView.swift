@@ -9,6 +9,7 @@ import SwiftUI
 /// - `-useStoreKit` starts with the StoreKit provider (run from Xcode so the local
 ///   `PaywallKitDemo.storekit` configuration is active).
 /// - `-slowProducts` makes the fake provider take 3 s to load (to see the loading state).
+/// - `-purchaseDelay <seconds>` sets how long the fake provider takes (load and purchase).
 struct ContentView: View {
     enum ProviderKind: String, CaseIterable, Identifiable {
         case preview
@@ -110,9 +111,9 @@ struct ContentView: View {
                 onPurchase: purchased,
                 onRestore: restored
             ) {
-                VStack(spacing: 10) {
+                VStack(spacing: 6) {
                     Image(systemName: "crown.fill")
-                        .font(.largeTitle)
+                        .font(.title)
                         .foregroundStyle(.tint)
                         .accessibilityHidden(true)
                     Text("Go Pro")
@@ -168,22 +169,22 @@ struct ContentView: View {
     private var storyPages: [PaywallStoryPage] {
         [
             PaywallStoryPage(caption: String(localized: "Pro · 1 of 3"),
-                             title: String(localized: "Unlimited projects"),
-                             background: [Color(red: 0.20, green: 0.16, blue: 0.55), Color(red: 0.05, green: 0.04, blue: 0.18)]) {
-                StoryFeature(systemImage: "square.stack.3d.up.fill",
-                             text: "Create as many projects as you like.")
+                             title: String(localized: "See the difference"),
+                             background: [Color(red: 0.98, green: 0.50, blue: 0.32), Color(red: 0.86, green: 0.24, blue: 0.55),
+                                          Color(red: 0.38, green: 0.20, blue: 0.72), Color(red: 0.07, green: 0.05, blue: 0.22)]) {
+                BeforeAfterSlider()
             },
             PaywallStoryPage(caption: String(localized: "Pro · 2 of 3"),
-                             title: String(localized: "Sync across your devices"),
-                             background: [Color(red: 0.02, green: 0.38, blue: 0.45), Color(red: 0.01, green: 0.10, blue: 0.16)]) {
-                StoryFeature(systemImage: "icloud.fill",
-                             text: "Your work follows you on iPhone and iPad.")
+                             title: String(localized: "Unlimited projects"),
+                             background: [Color(red: 0.05, green: 0.70, blue: 0.72), Color(red: 0.14, green: 0.38, blue: 0.88),
+                                          Color(red: 0.30, green: 0.14, blue: 0.60), Color(red: 0.05, green: 0.04, blue: 0.18)]) {
+                StackedProjectsVisual()
             },
             PaywallStoryPage(caption: String(localized: "Pro · 3 of 3"),
-                             title: String(localized: "No ads, ever"),
-                             background: [Color(red: 0.55, green: 0.18, blue: 0.30), Color(red: 0.16, green: 0.03, blue: 0.08)]) {
-                StoryFeature(systemImage: "sparkles",
-                             text: "A clean workspace with nothing in your way.")
+                             title: String(localized: "20+ themes"),
+                             background: [Color(red: 0.98, green: 0.70, blue: 0.25), Color(red: 0.92, green: 0.32, blue: 0.40),
+                                          Color(red: 0.45, green: 0.18, blue: 0.55), Color(red: 0.08, green: 0.04, blue: 0.16)]) {
+                ThemeGridVisual()
             }
         ]
     }
@@ -205,7 +206,9 @@ struct ContentView: View {
     private var provider: any PurchaseProvider {
         switch providerKind {
         case .preview:
-            let delay: Duration = Self.arguments.contains("-slowProducts") ? .seconds(3) : .milliseconds(600)
+            let customDelay = UserDefaults.standard.double(forKey: "purchaseDelay")
+            let delay: Duration = customDelay > 0 ? .milliseconds(Int(customDelay * 1000))
+                : Self.arguments.contains("-slowProducts") ? .seconds(3) : .milliseconds(600)
             return PreviewPurchaseProvider(products: demoProducts, delay: delay)
         case .storeKit:
             return StoreKitPurchaseProvider()
@@ -232,26 +235,6 @@ struct ContentView: View {
                            price: Decimal(string: "599.99")!, currencyCode: "TRY", period: .yearly,
                            introductoryOffer: .freeTrial(.days(3)))
         ]
-    }
-}
-
-/// Icon + sentence used on the demo story pages.
-private struct StoryFeature: View {
-    let systemImage: String
-    let text: LocalizedStringKey
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Image(systemName: systemImage)
-                .font(.system(size: 64, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
-                .accessibilityHidden(true)
-            Text(text)
-                .font(.title3)
-                .foregroundStyle(.white.opacity(0.85))
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(.top, 12)
     }
 }
 
