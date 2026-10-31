@@ -88,6 +88,54 @@ final class TemplateRulesTests: XCTestCase {
         }
     }
 
+    func testPinnedAreaIsOpaqueInEveryTemplate() {
+        for (name, style) in allStyles {
+            for interfaceStyle in [UIUserInterfaceStyle.light, .dark] {
+                let color = UIColor(style.traits.footerFill)
+                    .resolvedColor(with: UITraitCollection(userInterfaceStyle: interfaceStyle))
+                XCTAssertEqual(color.cgColor.alpha, 1, accuracy: 0.0001,
+                               "\(name): pinned area must be opaque so scrolled content never shows through")
+            }
+        }
+    }
+
+    func testDisclosurePlacement() {
+        XCTAssertEqual(PaywallStyle.classic.traits.disclosurePlacement, .belowPlans)
+        XCTAssertEqual(PaywallStyle.comparison(rows: []).traits.disclosurePlacement, .pinned)
+        XCTAssertEqual(PaywallStyle.vault.traits.disclosurePlacement, .belowPlans)
+        XCTAssertEqual(PaywallStyle.stories(pages: []).traits.disclosurePlacement, .pinned)
+    }
+
+    func testComparisonShowsPreselectedPlanFirst() {
+        XCTAssertTrue(PaywallStyle.comparison(rows: []).traits.preselectedPlanFirst)
+        XCTAssertFalse(PaywallStyle.classic.traits.preselectedPlanFirst)
+    }
+
+    // MARK: Compact single-line price
+
+    func testCompactBilledPriceShrinksAtMostTo80Percent() {
+        XCTAssertEqual(PlanCard.Variant.compact.billedSingleLineScale(for: .default), 0.8)
+        XCTAssertNil(PlanCard.Variant.regular.billedSingleLineScale(for: .default), "Regular cards never force one line")
+    }
+
+    func testShrunkBilledPriceStaysLargerThanSecondaryLines() {
+        for billed in Font.TextStyle.allIOSStyles {
+            for secondary in Font.TextStyle.allIOSStyles {
+                let typography = PriceTypography.clamped(billed: billed, secondary: secondary)
+                let resolved = PlanCard.Variant.compact.resolvedTypography(typography)
+                guard let scale = PlanCard.Variant.compact.billedSingleLineScale(for: typography) else { continue }
+                XCTAssertGreaterThan(resolved.billed.defaultPointSize * scale, resolved.secondary.defaultPointSize,
+                                     "billed \(billed), secondary \(secondary)")
+            }
+        }
+    }
+
+    func testUnsafeTypographyWrapsInsteadOfShrinking() {
+        // 16 pt × 0.8 = 12.8 pt would be smaller than a 13 pt secondary line.
+        let typography = PriceTypography.clamped(billed: .callout, secondary: .footnote)
+        XCTAssertNil(PlanCard.Variant.compact.billedSingleLineScale(for: typography))
+    }
+
     func testOnlyVaultUsesSlideToConfirm() {
         for (name, style) in allStyles {
             let expected: PaywallPurchaseControl = name == "vault" ? .slideToConfirm : .button

@@ -140,6 +140,24 @@ extension Font.TextStyle {
         }
     }
 
+    /// Point size at the default (Large) Dynamic Type size. Styles keep their order at
+    /// every Dynamic Type size, so comparing these is enough to compare rendered sizes.
+    var defaultPointSize: CGFloat {
+        switch self {
+        case .largeTitle: return 34
+        case .title: return 28
+        case .title2: return 22
+        case .title3: return 20
+        case .headline, .body: return 17
+        case .callout: return 16
+        case .subheadline: return 15
+        case .footnote: return 13
+        case .caption: return 12
+        case .caption2: return 11
+        @unknown default: return 17
+        }
+    }
+
     /// Every iOS text style, largest first.
     static let allIOSStyles: [Font.TextStyle] = [
         .largeTitle, .title, .title2, .title3, .headline, .body,

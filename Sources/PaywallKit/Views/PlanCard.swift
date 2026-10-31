@@ -24,6 +24,19 @@ public struct PlanCard: View {
             case .compact: return typography == .default ? .compact : typography
             }
         }
+
+        /// How far a compact card may shrink the billed amount to keep it on one line.
+        static let compactBilledMinimumScale: CGFloat = 0.8
+
+        /// Minimum scale for the billed amount, or `nil` when it must not be forced onto
+        /// one line. Compact cards shrink the billed amount (never abbreviating units) only
+        /// while it stays larger than the secondary lines — otherwise it may wrap instead.
+        func billedSingleLineScale(for typography: PriceTypography) -> CGFloat? {
+            guard self == .compact else { return nil }
+            let resolved = resolvedTypography(typography)
+            let shrunk = resolved.billed.defaultPointSize * Self.compactBilledMinimumScale
+            return shrunk > resolved.secondary.defaultPointSize ? Self.compactBilledMinimumScale : nil
+        }
     }
 
     @Environment(\.locale) private var locale
@@ -133,9 +146,12 @@ public struct PlanCard: View {
 
     @ViewBuilder
     private func prices(_ hierarchy: PriceHierarchy) -> some View {
+        let singleLineScale = dynamicTypeSize.isAccessibilitySize ? nil : variant.billedSingleLineScale(for: typography)
         Text(hierarchy.billed.text)
             .font(hierarchy.billed.font)
             .foregroundStyle(.primary)
+            .lineLimit(singleLineScale == nil ? nil : 1)
+            .minimumScaleFactor(singleLineScale ?? 1)
 
         ForEach(hierarchy.secondaryLines, id: \.role) { line in
             Text(line.text)
