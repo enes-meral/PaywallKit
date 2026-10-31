@@ -1,26 +1,22 @@
 {
   "identifier" : "5E0C9A1D",
-  "nonRenewingSubscriptions" : [
-
-  ],
-  "products" : [
-
-  ],
+  "nonRenewingSubscriptions" : [],
+  "products" : [],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : []
+  },
   "subscriptionGroups" : [
     {
       "id" : "21000001",
-      "localizations" : [
-
-      ],
+      "localizations" : [],
       "name" : "Pro",
       "subscriptions" : [
         {
-          "adHocOffers" : [
-
-          ],
-          "codeOffers" : [
-
-          ],
+          "adHocOffers" : [],
+          "codeOffers" : [],
           "displayPrice" : "1.99",
           "familyShareable" : false,
           "groupNumber" : 3,
@@ -40,12 +36,8 @@
           "type" : "RecurringSubscription"
         },
         {
-          "adHocOffers" : [
-
-          ],
-          "codeOffers" : [
-
-          ],
+          "adHocOffers" : [],
+          "codeOffers" : [],
           "displayPrice" : "4.99",
           "familyShareable" : false,
           "groupNumber" : 2,
@@ -65,12 +57,8 @@
           "type" : "RecurringSubscription"
         },
         {
-          "adHocOffers" : [
-
-          ],
-          "codeOffers" : [
-
-          ],
+          "adHocOffers" : [],
+          "codeOffers" : [],
           "displayPrice" : "29.99",
           "familyShareable" : false,
           "groupNumber" : 1,

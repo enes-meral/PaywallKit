@@ -161,6 +161,12 @@ PaywallView(title: "Unlock Pro", configuration: configuration, provider: MyBacke
 `PreviewPurchaseProvider` returns fake products and never contacts the App Store — use it in
 SwiftUI previews and tests.
 
+> **Note on `StoreKitPurchaseProvider`:** end-to-end verification against the StoreKit test
+> server has not been done yet; the purchase logic was tested with `PreviewPurchaseProvider`.
+> The demo project contains StoreKit integration tests (`PaywallKitDemoTests`), but they are
+> skipped when the local StoreKit test environment is unavailable. Please open an issue with
+> feedback.
+
 ## Listening to `Transaction.updates`
 
 `StoreKitPurchaseProvider` verifies and finishes transactions started **from the paywall**. Some
@@ -274,6 +280,15 @@ The package is iOS-only, so tests run on a simulator:
 
 ```sh
 xcodebuild test -scheme PaywallKit -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
+
+StoreKit integration tests for `StoreKitPurchaseProvider` live in the demo project. They use
+`SKTestSession` with `PaywallKitDemo.storekit` and skip themselves, with an explicit message, when
+the StoreKit test environment is not available on the machine:
+
+```sh
+xcodebuild test -project Examples/PaywallKitDemo/PaywallKitDemo.xcodeproj -scheme PaywallKitDemo \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
 ## License
