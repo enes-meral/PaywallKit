@@ -17,6 +17,7 @@ public struct SubscriptionDisclosure: View {
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
             .fixedSize(horizontal: false, vertical: true)
+            .accessibilityIdentifier("paywall.disclosure")
     }
 
     private var text: String {

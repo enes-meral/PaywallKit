@@ -57,33 +57,37 @@ public struct DefaultPaywallHeader: View {
 
 /// A complete, App Review–friendly paywall.
 ///
-/// Guarantees, independent of configuration:
+/// Guarantees, independent of configuration and template (`style`):
 /// - The close button is visible in the first frame (no delay, no fade-in).
-/// - Restore Purchases, Terms of Use and Privacy Policy are pinned to the bottom and
-///   always visible — while loading, on error and while scrolling.
+/// - Restore Purchases, Terms of Use and Privacy Policy are pinned outside any scrolling
+///   area and always visible — while loading, on error and while scrolling.
 /// - Each plan's billed amount is its most prominent price.
+/// - The subscription disclosure is shown next to the plan selection.
 ///
-/// Apply `.tint(_:)` to change the accent color.
+/// Apply `.tint(_:)` to change the accent color of `.classic` and `.stories`.
 public struct PaywallView<Header: View>: View {
     @StateObject private var model: PaywallViewModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
-    @ScaledMetric(relativeTo: .body) private var closeButtonClearance: CGFloat = 56
 
+    private let style: PaywallStyle
     private let header: Header
     private let onDismiss: (() -> Void)?
 
     /// - Parameters:
     ///   - configuration: Product IDs, legal URLs and price display options.
+    ///   - style: Visual template. Defaults to `.classic`.
     ///   - provider: Store backend. Defaults to StoreKit 2.
     ///   - onPurchase: Called with the product ID after a successful, verified purchase.
     ///   - onRestore: Called with the restored product IDs.
     ///   - onDismiss: Called when the close button is tapped. When `nil`, the paywall uses
     ///     `@Environment(\.dismiss)`.
     ///   - header: Your own content above the plans (hero image, title, features…).
-    ///     Do not put prices in it — keep pricing inside the plan cards.
+    ///     Do not put prices in it — keep pricing inside the plan cards. Not shown by
+    ///     `.stories`, whose pages are the content.
     public init(
         configuration: PaywallConfiguration,
+        style: PaywallStyle = .classic,
         provider: any PurchaseProvider = StoreKitPurchaseProvider(),
         onPurchase: @escaping (String) -> Void = { _ in },
         onRestore: @escaping (Set<String>) -> Void = { _ in },
@@ -96,153 +100,50 @@ public struct PaywallView<Header: View>: View {
             onPurchase: onPurchase,
             onRestore: onRestore
         ))
+        self.style = style
         self.header = header()
         self.onDismiss = onDismiss
     }
 
     public var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                header
-                plans
-                SubscriptionDisclosure(product: model.selectedProduct)
+        let traits = style.traits
+        template
+            .modifier(TemplateAppearance(traits: traits))
+            .overlay(alignment: .topTrailing) {
+                // Drawn unconditionally, outside every template: visible in the first frame.
+                CloseButton(action: close)
+                    .padding(.trailing, 12)
+                    .padding(.top, 4)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, min(closeButtonClearance, 76)) // room for the (size-capped) close button
-            .padding(.bottom, 16)
-            .frame(maxWidth: 600)
-            .frame(maxWidth: .infinity)
-        }
-        .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
-        .safeAreaInset(edge: .bottom, spacing: 0) { footer }
-        .overlay(alignment: .topTrailing) {
-            CloseButton(action: close)
-                .padding(.trailing, 12)
-                .padding(.top, 4)
-        }
-        .task { await model.loadProducts() }
-        .alert(
-            alertTitle,
-            isPresented: Binding(get: { model.alert != nil }, set: { if !$0 { model.alert = nil } }),
-            presenting: model.alert
-        ) { _ in
-            Button(l10n.string("alert.ok"), role: .cancel) {}
-        } message: { alert in
-            Text(alertMessage(for: alert))
-        }
+            .task { await model.loadProducts() }
+            .alert(
+                alertTitle,
+                isPresented: Binding(get: { model.alert != nil }, set: { if !$0 { model.alert = nil } }),
+                presenting: model.alert
+            ) { _ in
+                Button(l10n.string("alert.ok"), role: .cancel) {}
+            } message: { alert in
+                Text(alertMessage(for: alert))
+            }
     }
-
-    // MARK: Sections
 
     @ViewBuilder
-    private var plans: some View {
-        switch model.loadState {
-        case .loading:
-            VStack(spacing: 12) {
-                ProgressView()
-                Text(l10n.string("state.loading"))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, minHeight: 160)
-            .accessibilityElement(children: .combine)
-
-        case .failed:
-            VStack(spacing: 12) {
-                Text(l10n.string("state.error"))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                Button(l10n.string("button.retry")) {
-                    Task { await model.loadProducts() }
-                }
-                .buttonStyle(.bordered)
-            }
-            .frame(maxWidth: .infinity, minHeight: 160)
-
-        case .loaded:
-            VStack(spacing: 12) {
-                ForEach(model.products) { product in
-                    PlanCard(
-                        product: product,
-                        isSelected: product.id == model.selectedProductID,
-                        typography: model.configuration.typography,
-                        equivalentUnit: model.configuration.equivalentPriceUnit
-                    ) {
-                        model.selectedProductID = product.id
-                    }
-                    .disabled(model.isBusy)
-                }
-            }
+    private var template: some View {
+        switch style {
+        case .classic:
+            ClassicTemplate(model: model, traits: style.traits, header: header)
+        case .comparison(let rows):
+            ComparisonTemplate(model: model, traits: style.traits, rows: rows, header: header)
+        case .vault:
+            VaultTemplate(model: model, traits: style.traits, header: header)
+        case .stories(let pages):
+            StoriesTemplate(model: model, traits: style.traits, pages: pages)
         }
-    }
-
-    private var footer: some View {
-        VStack(spacing: 12) {
-            Button {
-                Task { await model.purchaseSelected() }
-            } label: {
-                ZStack {
-                    Text(purchaseTitle).opacity(model.isPurchasing ? 0 : 1)
-                    if model.isPurchasing { ProgressView() }
-                }
-                .font(.headline)
-                .lineLimit(2)
-                .minimumScaleFactor(0.8)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 6)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .disabled(model.selectedProduct == nil || model.isBusy)
-            .accessibilityLabel(purchaseTitle)
-            .accessibilityIdentifier("paywall.purchase")
-
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
-                    restoreButton
-                    Text("·").font(.footnote).foregroundStyle(.secondary).accessibilityHidden(true)
-                    legalLinks
-                }
-                VStack(spacing: 8) {
-                    restoreButton
-                    legalLinks
-                }
-            }
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 12)
-        .padding(.bottom, 8)
-        .frame(maxWidth: .infinity)
-        // The footer is pinned and always visible, so cap its text size: at the largest
-        // accessibility sizes it would otherwise cover most of the screen. The plans and
-        // disclosure above still scale fully.
-        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
-        .background(.bar)
-    }
-
-    private var restoreButton: some View {
-        RestoreButton { await model.restore() }
-            .disabled(model.isPurchasing)
-    }
-
-    private var legalLinks: some View {
-        LegalLinks(
-            termsURL: model.configuration.termsOfServiceURL,
-            privacyURL: model.configuration.privacyPolicyURL
-        )
     }
 
     // MARK: Helpers
 
     private var l10n: L10n { L10n(locale: locale) }
-
-    private var purchaseTitle: String {
-        model.selectedProduct?.introductoryOffer?.kind == .freeTrial
-            ? l10n.string("button.startTrial")
-            : l10n.string("button.continue")
-    }
 
     private var alertTitle: String {
         switch model.alert {
@@ -272,6 +173,27 @@ public struct PaywallView<Header: View>: View {
     }
 }
 
+/// Applies a template's forced color scheme and gold accent, without touching the
+/// caller's tint for templates that don't use gold.
+private struct TemplateAppearance: ViewModifier {
+    let traits: PaywallTemplateTraits
+
+    func body(content: Content) -> some View {
+        let tinted = Group {
+            if traits.usesGoldAccent {
+                content.tint(PaywallPalette.gold)
+            } else {
+                content
+            }
+        }
+        if let scheme = traits.forcedColorScheme {
+            tinted.environment(\.colorScheme, scheme)
+        } else {
+            tinted
+        }
+    }
+}
+
 extension PaywallView where Header == DefaultPaywallHeader {
     /// Convenience initializer with the built-in header.
     public init(
@@ -279,6 +201,7 @@ extension PaywallView where Header == DefaultPaywallHeader {
         subtitle: LocalizedStringKey? = nil,
         features: [PaywallFeature] = [],
         configuration: PaywallConfiguration,
+        style: PaywallStyle = .classic,
         provider: any PurchaseProvider = StoreKitPurchaseProvider(),
         onPurchase: @escaping (String) -> Void = { _ in },
         onRestore: @escaping (Set<String>) -> Void = { _ in },
@@ -286,6 +209,7 @@ extension PaywallView where Header == DefaultPaywallHeader {
     ) {
         self.init(
             configuration: configuration,
+            style: style,
             provider: provider,
             onPurchase: onPurchase,
             onRestore: onRestore,
