@@ -14,6 +14,9 @@ public struct PriceTypography: Hashable, Sendable {
 
     public static let `default` = PriceTypography(billed: .title2, secondary: .caption)
 
+    /// Smaller styles for narrow, side-by-side plan cards (`PlanCard.Variant.compact`).
+    public static let compact = PriceTypography(billed: .headline, secondary: .caption2)
+
     public init(billed: Font.TextStyle, secondary: Font.TextStyle) {
         let normalized = Self.normalize(billed: billed, secondary: secondary)
         assert(!normalized.secondaryWasLowered,
