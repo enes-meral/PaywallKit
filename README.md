@@ -54,7 +54,7 @@ Or in `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/enes-meral/PaywallKit", from: "0.1.0")
+    .package(url: "https://github.com/enes-meral/PaywallKit", from: "0.2.0")
 ],
 targets: [
     .target(name: "YourApp", dependencies: ["PaywallKit"])
