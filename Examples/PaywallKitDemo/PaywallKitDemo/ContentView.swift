@@ -87,9 +87,22 @@ struct ContentView: View {
 
     private var provider: any PurchaseProvider {
         switch providerKind {
-        case .preview: return PreviewPurchaseProvider.sample
+        case .preview: return PreviewPurchaseProvider(products: demoProducts)
         case .storeKit: return StoreKitPurchaseProvider()
         }
+    }
+
+    /// Fake products with localized names (the App Store would provide these in production).
+    private var demoProducts: [PaywallProduct] {
+        [
+            PaywallProduct(id: "demo.weekly", displayName: String(localized: "Weekly"),
+                           price: Decimal(string: "79.99")!, currencyCode: "TRY", period: .weekly),
+            PaywallProduct(id: "demo.monthly", displayName: String(localized: "Monthly"),
+                           price: Decimal(string: "199.99")!, currencyCode: "TRY", period: .monthly),
+            PaywallProduct(id: "demo.yearly", displayName: String(localized: "Yearly"),
+                           price: Decimal(string: "599.99")!, currencyCode: "TRY", period: .yearly,
+                           introductoryOffer: .freeTrial(.days(3)))
+        ]
     }
 }
 

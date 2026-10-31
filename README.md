@@ -15,9 +15,9 @@ rejected**, in code rather than in a checklist you have to remember.
 
 | Light (English) | Light (Turkish) | Dark · Accessibility size |
 | :---: | :---: | :---: |
-| _screenshot placeholder_ | _screenshot placeholder_ | _screenshot placeholder_ |
+| <img src="docs/screenshots/light-en.png" width="260" alt="Paywall in English, light mode"> | <img src="docs/screenshots/light-tr.png" width="260" alt="Paywall in Turkish, light mode"> | <img src="docs/screenshots/dark-accessibility-tr.png" width="260" alt="Paywall in Turkish, dark mode, largest accessibility text size"> |
 
-<!-- Add images to docs/screenshots/ and reference them here, e.g. ![Light](docs/screenshots/light-en.png) -->
+_Screenshots from the demo app (fake products) on iPhone 17 Pro._
 
 ## What the rules look like in code
 

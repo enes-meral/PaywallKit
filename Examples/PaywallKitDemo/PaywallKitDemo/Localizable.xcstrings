@@ -33,6 +33,23 @@
         }
       }
     },
+    "Monthly": {
+      "comment": "Fake demo product name",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monthly"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aylık"
+          }
+        }
+      }
+    },
     "No ads, ever": {
       "localizations": {
         "en": {
@@ -253,6 +270,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pro'nun Kilidini Aç"
+          }
+        }
+      }
+    },
+    "Weekly": {
+      "comment": "Fake demo product name",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haftalık"
+          }
+        }
+      }
+    },
+    "Yearly": {
+      "comment": "Fake demo product name",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yearly"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yıllık"
           }
         }
       }
