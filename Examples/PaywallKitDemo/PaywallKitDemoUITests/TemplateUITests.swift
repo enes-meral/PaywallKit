@@ -50,6 +50,64 @@ final class TemplateUITests: XCTestCase {
         }
     }
 
+    /// The disclosure is either fully inside the opaque pinned area (not touching its
+    /// controls) or in the scroll view directly below the plans — and then it can be scrolled
+    /// completely above the pinned area, including its gradient edge.
+    func testDisclosureIsFullyVisibleAndNeverOverlapsPinnedArea() {
+        for template in Self.templates {
+            let app = launch(template)
+            XCTAssertTrue(element(app, "paywall.plan.demo.yearly").waitForExistence(timeout: 5), template)
+            let pinned = element(app, "paywall.pinnedFooter")
+            let disclosure = element(app, "paywall.disclosure")
+            XCTAssertTrue(pinned.exists, "\(template): pinned area")
+            XCTAssertTrue(disclosure.exists, "\(template): disclosure")
+
+            if pinned.frame.contains(disclosure.frame) {
+                for identifier in ["paywall.purchase", "paywall.restore", "paywall.terms", "paywall.privacy"] {
+                    XCTAssertFalse(disclosure.frame.intersects(element(app, identifier).frame),
+                                   "\(template): disclosure overlaps \(identifier)")
+                }
+            } else {
+                let plansBottom = planFrames(app).map(\.maxY).max() ?? 0
+                XCTAssertGreaterThanOrEqual(disclosure.frame.minY, plansBottom - 1, "\(template): disclosure above plans")
+                XCTAssertLessThan(disclosure.frame.minY - plansBottom, 40, "\(template): disclosure not directly below plans")
+
+                var swipes = 0
+                while disclosure.frame.maxY > pinned.frame.minY, swipes < 4 {
+                    app.swipeUp()
+                    swipes += 1
+                }
+                XCTAssertLessThanOrEqual(disclosure.frame.maxY, pinned.frame.minY + 0.5,
+                                         "\(template): disclosure can't be scrolled clear of the pinned area")
+                XCTAssertGreaterThanOrEqual(disclosure.frame.minY, 0, "\(template): disclosure scrolled off the top")
+            }
+            app.terminate()
+        }
+    }
+
+    /// iPhone 17 Pro: table, the preselected (selected, first) plan and the disclosure are all
+    /// visible without scrolling.
+    func testComparisonFirstScreenShowsTableSelectedPlanAndDisclosure() {
+        let app = launch("comparison")
+        let yearly = element(app, "paywall.plan.demo.yearly")
+        XCTAssertTrue(yearly.waitForExistence(timeout: 5))
+        let pinned = element(app, "paywall.pinnedFooter")
+
+        XCTAssertGreaterThanOrEqual(element(app, "paywall.comparisonTable").frame.minY, 0)
+        XCTAssertTrue(yearly.isSelected, "Preselected plan must be selected")
+        XCTAssertLessThan(yearly.frame.minY, element(app, "paywall.plan.demo.weekly").frame.minY, "Preselected plan first")
+        XCTAssertLessThan(yearly.frame.minY, element(app, "paywall.plan.demo.monthly").frame.minY, "Preselected plan first")
+        XCTAssertLessThanOrEqual(yearly.frame.maxY, pinned.frame.minY + 0.5, "Selected plan hidden by the pinned area")
+        XCTAssertTrue(pinned.frame.contains(element(app, "paywall.disclosure").frame), "Disclosure not fully visible")
+    }
+
+    private func planFrames(_ app: XCUIApplication) -> [CGRect] {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH 'paywall.plan.'"))
+            .allElementsBoundByIndex
+            .map(\.frame)
+    }
+
     func testCloseButtonDismissesEveryTemplate() {
         for template in Self.templates {
             let app = launch(template)
@@ -96,14 +154,16 @@ final class TemplateUITests: XCTestCase {
         guard ProcessInfo.processInfo.environment["RECORD_VAULT"] == "1" else {
             throw XCTSkip("Only used to record docs/vault.gif")
         }
-        let app = launch("vault")
+        let app = XCUIApplication()
+        // Slower fake purchase so the open lock stays on screen before the paywall closes.
+        app.launchArguments = ["-showPaywall", "-paywallStyle", "vault", "-purchaseDelay", "2.5",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
         let slider = element(app, "paywall.purchase")
-        XCTAssertTrue(element(app, "paywall.plan.demo.yearly").waitForExistence(timeout: 5))
-        sleep(1)
-        drag(slider, to: 0.55, velocity: 260)   // released early: springs back
-        sleep(1)
-        drag(slider, to: 0.98, velocity: 220)   // past 85%: lock opens, purchase starts
-        sleep(3)
+        XCTAssertTrue(element(app, "paywall.plan.demo.yearly").waitForExistence(timeout: 8))
+        sleep(2)
+        drag(slider, to: 0.98, velocity: 350)   // past 85%: lock opens, purchase starts
+        XCTAssertTrue(app.staticTexts["Pro unlocked"].waitForExistence(timeout: 8))
     }
 
     private func drag(_ slider: XCUIElement, to fraction: CGFloat, velocity: CGFloat = 600) {
