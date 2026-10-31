@@ -22,6 +22,14 @@ final class PaywallViewModelTests: XCTestCase {
         XCTAssertEqual(model.selectedProductID, "demo.yearly")
     }
 
+    func testPreselectedProductCanBeMovedFirst() async {
+        let model = PaywallViewModel(configuration: configuration(preselected: "demo.yearly"),
+                                     provider: PreviewPurchaseProvider(delay: .zero))
+        await model.loadProducts()
+        XCTAssertEqual(model.productsPreselectedFirst.map(\.id), ["demo.yearly", "demo.weekly", "demo.monthly"])
+        XCTAssertEqual(model.products.map(\.id), ["demo.weekly", "demo.monthly", "demo.yearly"], "Original order unchanged")
+    }
+
     func testFallsBackToFirstProductWhenNoPreselection() async {
         let model = PaywallViewModel(configuration: configuration(), provider: PreviewPurchaseProvider(delay: .zero))
         await model.loadProducts()

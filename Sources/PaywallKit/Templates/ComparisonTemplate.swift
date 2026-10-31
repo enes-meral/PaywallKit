@@ -7,17 +7,27 @@ struct ComparisonTemplate<Header: View>: View {
     let rows: [ComparisonRow]
     let header: Header
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ScaledMetric(relativeTo: .body) private var closeButtonClearance: CGFloat = 56
+
+    /// The disclosure sits in the pinned area so the table, the selected plan and the
+    /// disclosure fit on the first screen. At accessibility sizes it moves below the plans.
+    private var disclosureIsPinned: Bool {
+        traits.disclosurePlacement == .pinned && !dynamicTypeSize.isAccessibilitySize
+    }
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 16) {
                 header
                 if !rows.isEmpty {
                     ComparisonTable(rows: rows)
                 }
-                PlanSelection(model: model, variant: traits.planCardVariant)
-                SubscriptionDisclosure(product: model.selectedProduct)
+                PlanSelection(model: model, variant: traits.planCardVariant,
+                              preselectedFirst: traits.preselectedPlanFirst)
+                if !disclosureIsPinned {
+                    SubscriptionDisclosure(product: model.selectedProduct)
+                }
             }
             .padding(.horizontal, 20)
             .padding(.top, min(closeButtonClearance, 76))
@@ -27,7 +37,10 @@ struct ComparisonTemplate<Header: View>: View {
         }
         .background(backdrop.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            PinnedPaywallFooter(background: AnyShapeStyle(PaywallPalette.night.opacity(0.92))) {
+            PinnedPaywallFooter(fill: traits.footerFill) {
+                if disclosureIsPinned {
+                    SubscriptionDisclosure(product: model.selectedProduct)
+                }
                 PurchaseButton(model: model, labelColor: .black)
                 PaywallFooterLinks(model: model, items: traits.footerItems)
             }
@@ -80,6 +93,8 @@ struct ComparisonTable: View {
                 .strokeBorder(Color.white.opacity(0.08))
         )
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("paywall.comparisonTable")
     }
 
     private func headerRow(_ l10n: L10n) -> some View {
@@ -96,7 +111,7 @@ struct ComparisonTable: View {
         }
         .lineLimit(1)
         .minimumScaleFactor(0.7)
-        .padding(.vertical, 12)
+        .padding(.vertical, 9)
         .accessibilityHidden(true)
     }
 
@@ -113,7 +128,7 @@ struct ComparisonTable: View {
             cell(row.pro, onGold: true)
                 .frame(width: proWidth)
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 8)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(l10n.format("comparison.row.a11y", row.title,
                                         spoken(row.free, l10n), spoken(row.pro, l10n)))

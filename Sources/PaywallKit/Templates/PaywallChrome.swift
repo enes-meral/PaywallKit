@@ -7,12 +7,16 @@ enum PaywallPalette {
     static let amber = Color(red: 1.0, green: 0.60, blue: 0.16)
     static let night = Color(red: 0.05, green: 0.05, blue: 0.07)
     static let nightRaised = Color(red: 0.10, green: 0.10, blue: 0.12)
+    /// Opaque fill of the stories bottom panel.
+    static let panel = Color(red: 0.07, green: 0.07, blue: 0.09)
 }
 
 /// Loading / error / plan cards — the plan selection used by every template.
 struct PlanSelection: View {
     @ObservedObject var model: PaywallViewModel
     let variant: PlanCard.Variant
+    /// Show the configuration's preselected product first.
+    var preselectedFirst = false
 
     @Environment(\.locale) private var locale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -48,7 +52,7 @@ struct PlanSelection: View {
                 ? AnyLayout(VStackLayout(spacing: variant == .regular ? 12 : 8))
                 : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
             layout {
-                ForEach(model.products) { product in
+                ForEach(preselectedFirst ? model.productsPreselectedFirst : model.products) { product in
                     PlanCard(
                         product: product,
                         isSelected: product.id == model.selectedProductID,
@@ -162,19 +166,48 @@ struct PaywallFooterLinks: View {
     }
 }
 
-/// Container pinned to the bottom of every template: purchase control + footer links.
-/// Its text size is capped so it never covers the screen at accessibility sizes.
+/// Container pinned to the bottom of every template: purchase control + footer links (and,
+/// for some templates, the disclosure).
+///
+/// It is opaque — filled with the template's background color — so scrolled content never
+/// shows through it. A soft gradient of `fadeHeight` above its top edge blends it into the
+/// content. Its text size is capped so it never covers the screen at accessibility sizes.
 struct PinnedPaywallFooter<Content: View>: View {
-    var background: AnyShapeStyle = AnyShapeStyle(.bar)
+    let fill: Color
+    var fadeHeight: CGFloat = 24
+    /// Accessibility identifier of the whole pinned area (used by UI tests).
+    var identifier: String? = "paywall.pinnedFooter"
     @ViewBuilder let content: () -> Content
 
     var body: some View {
-        VStack(spacing: 12) { content() }
-            .padding(.horizontal, 20)
-            .padding(.top, 12)
-            .padding(.bottom, 8)
-            .frame(maxWidth: .infinity)
-            .dynamicTypeSize(...DynamicTypeSize.accessibility1)
-            .background(background)
+        VStack(spacing: 0) {
+            if fadeHeight > 0 {
+                LinearGradient(colors: [fill.opacity(0), fill], startPoint: .top, endPoint: .bottom)
+                    .frame(height: fadeHeight)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+            VStack(spacing: 12) { content() }
+                .padding(.horizontal, 20)
+                .padding(.top, fadeHeight > 0 ? 4 : 12)
+                .padding(.bottom, 8)
+                .frame(maxWidth: .infinity)
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
+                .background(fill.ignoresSafeArea(edges: .bottom))
+        }
+        .accessibilityElement(children: .contain)
+        .modifier(OptionalIdentifier(identifier: identifier))
+    }
+}
+
+private struct OptionalIdentifier: ViewModifier {
+    let identifier: String?
+
+    func body(content: Content) -> some View {
+        if let identifier {
+            content.accessibilityIdentifier(identifier)
+        } else {
+            content
+        }
     }
 }

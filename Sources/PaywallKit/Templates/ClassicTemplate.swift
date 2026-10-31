@@ -23,7 +23,7 @@ struct ClassicTemplate<Header: View>: View {
         }
         .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            PinnedPaywallFooter {
+            PinnedPaywallFooter(fill: traits.footerFill) {
                 PurchaseButton(model: model)
                 PaywallFooterLinks(model: model, items: traits.footerItems)
             }

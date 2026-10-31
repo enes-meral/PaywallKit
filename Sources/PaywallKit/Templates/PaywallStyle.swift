@@ -77,6 +77,15 @@ enum PaywallFooterItem: Hashable, CaseIterable {
     case privacyPolicy
 }
 
+/// Where the subscription disclosure is shown. Either way it is fully visible next to the
+/// plan selection, never under the pinned area.
+enum PaywallDisclosurePlacement: Hashable {
+    /// In the scroll view, directly below the plans.
+    case belowPlans
+    /// In the opaque pinned area, above the purchase control.
+    case pinned
+}
+
 /// How the purchase is confirmed.
 enum PaywallPurchaseControl: Hashable {
     case button
@@ -92,6 +101,11 @@ struct PaywallTemplateTraits {
     /// `nil` follows the system appearance.
     let forcedColorScheme: ColorScheme?
     let usesGoldAccent: Bool
+    /// Opaque fill of the pinned area — the template's background color behind it.
+    let footerFill: Color
+    let disclosurePlacement: PaywallDisclosurePlacement
+    /// Show the preselected plan first.
+    let preselectedPlanFirst: Bool
 
     // Guarantees — identical for every template.
     let footerItems: [PaywallFooterItem] = PaywallFooterItem.allCases
@@ -110,16 +124,24 @@ extension PaywallStyle {
         switch self {
         case .classic:
             return PaywallTemplateTraits(planCardVariant: .regular, purchaseControl: .button,
-                                         forcedColorScheme: nil, usesGoldAccent: false)
+                                         forcedColorScheme: nil, usesGoldAccent: false,
+                                         footerFill: Color(uiColor: .systemGroupedBackground),
+                                         disclosurePlacement: .belowPlans, preselectedPlanFirst: false)
         case .comparison:
             return PaywallTemplateTraits(planCardVariant: .regular, purchaseControl: .button,
-                                         forcedColorScheme: .dark, usesGoldAccent: true)
+                                         forcedColorScheme: .dark, usesGoldAccent: true,
+                                         footerFill: .black,
+                                         disclosurePlacement: .pinned, preselectedPlanFirst: true)
         case .vault:
             return PaywallTemplateTraits(planCardVariant: .compact, purchaseControl: .slideToConfirm,
-                                         forcedColorScheme: .dark, usesGoldAccent: true)
+                                         forcedColorScheme: .dark, usesGoldAccent: true,
+                                         footerFill: PaywallPalette.night,
+                                         disclosurePlacement: .belowPlans, preselectedPlanFirst: false)
         case .stories:
             return PaywallTemplateTraits(planCardVariant: .compact, purchaseControl: .button,
-                                         forcedColorScheme: .dark, usesGoldAccent: false)
+                                         forcedColorScheme: .dark, usesGoldAccent: false,
+                                         footerFill: PaywallPalette.panel,
+                                         disclosurePlacement: .pinned, preselectedPlanFirst: false)
         }
     }
 }

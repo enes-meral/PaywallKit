@@ -40,6 +40,9 @@ struct StoriesTemplate: View {
     @State private var runStartedAt = Date()
     @State private var elapsedBeforeRun: TimeInterval = 0
     @State private var advanceTask: Task<Void, Never>?
+    @State private var storyWidth: CGFloat = 0
+    @State private var suppressNextTap = false
+    @GestureState private var isHolding = false
 
     private var autoAdvances: Bool {
         StoryPlayback.autoAdvances(reduceMotion: reduceMotion, voiceOver: voiceOverEnabled, pageCount: pages.count)
@@ -60,6 +63,16 @@ struct StoriesTemplate: View {
             stop()
         }
         .onChange(of: autoAdvances) { _ in startPage() }
+        .onChange(of: isHolding) { holding in
+            if holding {
+                suppressNextTap = true
+                pause()
+            } else {
+                resume()
+                // The tap that ends a hold must not change the page.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { suppressNextTap = false }
+            }
+        }
     }
 
     // MARK: Story area
@@ -86,7 +99,14 @@ struct StoriesTemplate: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipped()
         .contentShape(Rectangle())
-        .overlay(tapZones)
+        .background(GeometryReader { proxy in
+            Color.clear
+                .onAppear { storyWidth = proxy.size.width }
+                .onChange(of: proxy.size.width) { storyWidth = $0 }
+        })
+        // Simultaneous gestures, so interactive page content (sliders, …) keeps working.
+        .simultaneousGesture(holdGesture)
+        .simultaneousGesture(SpatialTapGesture().onEnded { value in handleTap(atX: value.location.x) })
     }
 
     private func pageContent(_ page: PaywallStoryPage) -> some View {
@@ -138,23 +158,26 @@ struct StoriesTemplate: View {
         return autoAdvances ? progress : 1
     }
 
-    /// Left third: previous. Right two thirds: next. Press and hold anywhere: pause.
-    private var tapZones: some View {
-        GeometryReader { proxy in
-            HStack(spacing: 0) {
-                Color.clear
-                    .contentShape(Rectangle())
-                    .frame(width: proxy.size.width / 3)
-                    .onTapGesture { goBack() }
-                Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture { goForward() }
+    /// Press and hold anywhere on the story: pause until released.
+    private var holdGesture: some Gesture {
+        LongPressGesture(minimumDuration: 0.25)
+            .sequenced(before: DragGesture(minimumDistance: 0))
+            .updating($isHolding) { value, state, _ in
+                if case .second(true, _) = value { state = true }
             }
-            .onLongPressGesture(minimumDuration: 0.25, maximumDistance: 30, perform: {}, onPressingChanged: { pressing in
-                pressing ? pause() : resume()
-            })
+    }
+
+    /// Left third: previous. Right two thirds: next.
+    private func handleTap(atX x: CGFloat) {
+        if suppressNextTap {
+            suppressNextTap = false
+            return
         }
-        .accessibilityHidden(true)
+        if storyWidth > 0, x < storyWidth / 3 {
+            goBack()
+        } else {
+            goForward()
+        }
     }
 
     private var manualControls: some View {
@@ -181,7 +204,7 @@ struct StoriesTemplate: View {
             Color.black
             ForEach(pages.indices, id: \.self) { pageIndex in
                 LinearGradient(colors: gradientColors(pages[pageIndex].background),
-                               startPoint: .top, endPoint: .bottom)
+                               startPoint: .topLeading, endPoint: .bottomTrailing)
                     .opacity(pageIndex == index ? 1 : 0)
             }
         }
@@ -202,8 +225,10 @@ struct StoriesTemplate: View {
 
     // MARK: Bottom panel
 
+    /// Opaque panel with rounded top corners that sits over the story gradient. Plans,
+    /// disclosure, button and links are all fixed here, so nothing scrolls behind them.
     private var bottomPanel: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 0) {
             Group {
                 if dynamicTypeSize.isAccessibilitySize {
                     ScrollView { planBlock }.frame(maxHeight: 280)
@@ -212,18 +237,22 @@ struct StoriesTemplate: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.top, 16)
+            .padding(.top, 18)
 
-            PinnedPaywallFooter(background: AnyShapeStyle(Color.clear)) {
+            PinnedPaywallFooter(fill: traits.footerFill, fadeHeight: 0, identifier: nil) {
                 PurchaseButton(model: model)
                 PaywallFooterLinks(model: model, items: traits.footerItems)
             }
         }
         .background(
-            UnevenRoundedTop(radius: 24)
-                .fill(.ultraThinMaterial)
+            UnevenRoundedTop(radius: 28)
+                .fill(traits.footerFill)
+                .overlay(UnevenRoundedTop(radius: 28).stroke(Color.white.opacity(0.08), lineWidth: 1))
+                .shadow(color: .black.opacity(0.35), radius: 18, y: -6)
                 .ignoresSafeArea(edges: .bottom)
         )
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("paywall.pinnedFooter")
     }
 
     private var planBlock: some View {

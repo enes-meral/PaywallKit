@@ -49,6 +49,15 @@ final class PaywallViewModel: ObservableObject {
 
     var isBusy: Bool { isPurchasing || isRestoring }
 
+    /// Products with the configuration's preselected product moved to the top.
+    var productsPreselectedFirst: [PaywallProduct] {
+        guard let id = configuration.preselectedProductID,
+              let index = products.firstIndex(where: { $0.id == id }) else { return products }
+        var ordered = products
+        ordered.insert(ordered.remove(at: index), at: 0)
+        return ordered
+    }
+
     func loadProducts() async {
         loadState = .loading
         do {

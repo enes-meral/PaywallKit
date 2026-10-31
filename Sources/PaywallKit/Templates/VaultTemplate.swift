@@ -34,7 +34,7 @@ struct VaultTemplate<Header: View>: View {
         }
         .background(backdrop.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            PinnedPaywallFooter(background: AnyShapeStyle(PaywallPalette.night.opacity(0.92))) {
+            PinnedPaywallFooter(fill: traits.footerFill) {
                 let titles = PurchaseTitles(locale: locale, product: model.selectedProduct)
                 SlideToConfirm(title: titles.slide, buttonTitle: titles.button) {
                     await unlockAndPurchase()
