@@ -12,6 +12,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		D0000000000000000000A038 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D0000000000000000000A001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D0000000000000000000A007;
+			remoteInfo = PaywallKitDemo;
+		};
 		D0000000000000000000A028 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D0000000000000000000A001 /* Project object */;
@@ -22,12 +29,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D0000000000000000000A032 /* PaywallKitDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PaywallKitDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0000000000000000000A022 /* PaywallKitDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PaywallKitDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0000000000000000000A005 /* PaywallKitDemo.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = PaywallKitDemo.storekit; sourceTree = "<group>"; };
 		D0000000000000000000A006 /* PaywallKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PaywallKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		D0000000000000000000A030 /* PaywallKitDemoUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PaywallKitDemoUITests;
+			sourceTree = "<group>";
+		};
 		D0000000000000000000A020 /* PaywallKitDemoTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = PaywallKitDemoTests;
@@ -41,6 +54,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		D0000000000000000000A034 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D0000000000000000000A024 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -64,6 +84,7 @@
 			children = (
 				D0000000000000000000A004 /* PaywallKitDemo */,
 				D0000000000000000000A020 /* PaywallKitDemoTests */,
+				D0000000000000000000A030 /* PaywallKitDemoUITests */,
 				D0000000000000000000A005 /* PaywallKitDemo.storekit */,
 				D0000000000000000000A003 /* Products */,
 			);
@@ -74,6 +95,7 @@
 			children = (
 				D0000000000000000000A006 /* PaywallKitDemo.app */,
 				D0000000000000000000A022 /* PaywallKitDemoTests.xctest */,
+				D0000000000000000000A032 /* PaywallKitDemoUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -81,6 +103,27 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		D0000000000000000000A031 /* PaywallKitDemoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D0000000000000000000A039 /* Build configuration list for PBXNativeTarget "PaywallKitDemoUITests" */;
+			buildPhases = (
+				D0000000000000000000A033 /* Sources */,
+				D0000000000000000000A034 /* Frameworks */,
+				D0000000000000000000A035 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D0000000000000000000A037 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				D0000000000000000000A030 /* PaywallKitDemoUITests */,
+			);
+			name = PaywallKitDemoUITests;
+			productName = PaywallKitDemoUITests;
+			productReference = D0000000000000000000A032 /* PaywallKitDemoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		D0000000000000000000A021 /* PaywallKitDemoTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D0000000000000000000A029 /* Build configuration list for PBXNativeTarget "PaywallKitDemoTests" */;
@@ -142,6 +185,10 @@
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = D0000000000000000000A007;
 					};
+					D0000000000000000000A031 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = D0000000000000000000A007;
+					};
 				};
 			};
 			buildConfigurationList = D0000000000000000000A00E /* Build configuration list for PBXProject "PaywallKitDemo" */;
@@ -164,11 +211,19 @@
 			targets = (
 				D0000000000000000000A007 /* PaywallKitDemo */,
 				D0000000000000000000A021 /* PaywallKitDemoTests */,
+				D0000000000000000000A031 /* PaywallKitDemoUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		D0000000000000000000A035 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D0000000000000000000A025 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -187,6 +242,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		D0000000000000000000A033 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D0000000000000000000A023 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -204,6 +266,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		D0000000000000000000A037 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D0000000000000000000A007 /* PaywallKitDemo */;
+			targetProxy = D0000000000000000000A038 /* PBXContainerItemProxy */;
+		};
 		D0000000000000000000A027 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D0000000000000000000A007 /* PaywallKitDemo */;
@@ -212,6 +279,42 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		D0000000000000000000A03A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.PaywallKitDemoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PaywallKitDemo;
+			};
+			name = Debug;
+		};
+		D0000000000000000000A03B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.PaywallKitDemoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PaywallKitDemo;
+			};
+			name = Release;
+		};
 		D0000000000000000000A02A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -364,6 +467,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		D0000000000000000000A039 /* Build configuration list for PBXNativeTarget "PaywallKitDemoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D0000000000000000000A03A /* Debug */,
+				D0000000000000000000A03B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		D0000000000000000000A029 /* Build configuration list for PBXNativeTarget "PaywallKitDemoTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

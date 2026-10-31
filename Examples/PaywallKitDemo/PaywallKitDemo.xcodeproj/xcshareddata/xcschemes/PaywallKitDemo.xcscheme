@@ -38,6 +38,16 @@
                ReferencedContainer = "container:PaywallKitDemo.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D0000000000000000000A031"
+               BuildableName = "PaywallKitDemoUITests.xctest"
+               BlueprintName = "PaywallKitDemoUITests"
+               ReferencedContainer = "container:PaywallKitDemo.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
