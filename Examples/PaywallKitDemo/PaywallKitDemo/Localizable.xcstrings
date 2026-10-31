@@ -1,6 +1,118 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "A clean workspace with nothing in your way.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A clean workspace with nothing in your way."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Önünüzde hiçbir engel olmayan temiz bir çalışma alanı."
+          }
+        }
+      }
+    },
+    "Ad-free": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ad-free"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reklamsız"
+          }
+        }
+      }
+    },
+    "All premium tools in one subscription.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All premium tools in one subscription."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tüm premium araçlar tek abonelikte."
+          }
+        }
+      }
+    },
+    "Classic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classic"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klasik"
+          }
+        }
+      }
+    },
+    "Cloud sync": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloud sync"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bulut senkronizasyonu"
+          }
+        }
+      }
+    },
+    "Comparison": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comparison"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karşılaştırma"
+          }
+        }
+      }
+    },
+    "Create as many projects as you like.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create as many projects as you like."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İstediğiniz kadar proje oluşturun."
+          }
+        }
+      }
+    },
     "Everything you need, no limits.": {
       "localizations": {
         "en": {
@@ -17,6 +129,22 @@
         }
       }
     },
+    "Export to PDF": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export to PDF"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF'e aktarma"
+          }
+        }
+      }
+    },
     "Free plan": {
       "localizations": {
         "en": {
@@ -29,6 +157,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ücretsiz plan"
+          }
+        }
+      }
+    },
+    "Go Pro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go Pro"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro'ya Geç"
           }
         }
       }
@@ -130,6 +274,70 @@
         }
       }
     },
+    "Pro · 1 of 3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro · 1 of 3"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro · 1/3"
+          }
+        }
+      }
+    },
+    "Pro · 2 of 3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro · 2 of 3"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro · 2/3"
+          }
+        }
+      }
+    },
+    "Pro · 3 of 3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro · 3 of 3"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro · 3/3"
+          }
+        }
+      }
+    },
+    "Projects": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Projects"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Projeler"
+          }
+        }
+      }
+    },
     "Purchase provider": {
       "localizations": {
         "en": {
@@ -142,6 +350,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Satın alma sağlayıcısı"
+          }
+        }
+      }
+    },
+    "See what you get with Pro.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See what you get with Pro."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro ile neler kazandığınızı görün."
           }
         }
       }
@@ -210,6 +434,22 @@
         }
       }
     },
+    "Stories": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stories"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hikâyeler"
+          }
+        }
+      }
+    },
     "Sync across your devices": {
       "localizations": {
         "en": {
@@ -226,6 +466,22 @@
         }
       }
     },
+    "Template": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Template"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şablon"
+          }
+        }
+      }
+    },
     "The StoreKit provider needs PaywallKitDemo.storekit, which Xcode activates when you run the PaywallKitDemo scheme.": {
       "localizations": {
         "en": {
@@ -238,6 +494,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "StoreKit sağlayıcısı PaywallKitDemo.storekit dosyasını kullanır; Xcode bunu PaywallKitDemo şemasını çalıştırdığınızda etkinleştirir."
+          }
+        }
+      }
+    },
+    "Themes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Themes"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temalar"
           }
         }
       }
@@ -274,6 +546,38 @@
         }
       }
     },
+    "Unlock the Vault": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock the Vault"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kasayı Aç"
+          }
+        }
+      }
+    },
+    "Vault": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vault"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kasa"
+          }
+        }
+      }
+    },
     "Weekly": {
       "comment": "Fake demo product name",
       "localizations": {
@@ -304,6 +608,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Yıllık"
+          }
+        }
+      }
+    },
+    "Your work follows you on iPhone and iPad.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your work follows you on iPhone and iPad."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çalışmalarınız iPhone ve iPad'de sizinle."
           }
         }
       }

@@ -5,8 +5,10 @@ import SwiftUI
 ///
 /// Launch arguments (handy for screenshots / UI automation):
 /// - `-showPaywall` presents the paywall immediately.
+/// - `-paywallStyle classic|comparison|vault|stories` picks the template.
 /// - `-useStoreKit` starts with the StoreKit provider (run from Xcode so the local
 ///   `PaywallKitDemo.storekit` configuration is active).
+/// - `-slowProducts` makes the fake provider take 3 s to load (to see the loading state).
 struct ContentView: View {
     enum ProviderKind: String, CaseIterable, Identifiable {
         case preview
@@ -14,10 +16,27 @@ struct ContentView: View {
         var id: Self { self }
     }
 
-    @State private var providerKind: ProviderKind =
-        ProcessInfo.processInfo.arguments.contains("-useStoreKit") ? .storeKit : .preview
+    enum Template: String, CaseIterable, Identifiable {
+        case classic, comparison, vault, stories
+        var id: Self { self }
+
+        var title: LocalizedStringKey {
+            switch self {
+            case .classic: return "Classic"
+            case .comparison: return "Comparison"
+            case .vault: return "Vault"
+            case .stories: return "Stories"
+            }
+        }
+    }
+
+    private static let arguments = ProcessInfo.processInfo.arguments
+
+    @State private var providerKind: ProviderKind = arguments.contains("-useStoreKit") ? .storeKit : .preview
+    @State private var template: Template =
+        UserDefaults.standard.string(forKey: "paywallStyle").flatMap(Template.init(rawValue:)) ?? .classic
     @State private var showsWeeklyEquivalent = true
-    @State private var isPaywallPresented = ProcessInfo.processInfo.arguments.contains("-showPaywall")
+    @State private var isPaywallPresented = arguments.contains("-showPaywall")
     @State private var unlockedProductID: String?
 
     var body: some View {
@@ -29,11 +48,16 @@ struct ContentView: View {
                         systemImage: unlockedProductID == nil ? "lock" : "checkmark.seal.fill"
                     )
                     .foregroundStyle(unlockedProductID == nil ? Color.secondary : Color.green)
+                    .accessibilityIdentifier("demo.status")
                 } header: {
                     Text("Status")
                 }
 
                 Section {
+                    Picker("Template", selection: $template) {
+                        ForEach(Template.allCases) { Text($0.title).tag($0) }
+                    }
+                    .accessibilityIdentifier("demo.template")
                     Picker("Purchase provider", selection: $providerKind) {
                         Text("Preview (fake)").tag(ProviderKind.preview)
                         Text("StoreKit (local .storekit)").tag(ProviderKind.storeKit)
@@ -53,6 +77,17 @@ struct ContentView: View {
             .navigationTitle("PaywallKit Demo")
         }
         .fullScreenCover(isPresented: $isPaywallPresented) {
+            paywall
+                .id("\(providerKind.rawValue)-\(template.rawValue)") // rebuild when options change
+        }
+    }
+
+    // MARK: Paywalls
+
+    @ViewBuilder
+    private var paywall: some View {
+        switch template {
+        case .classic:
             PaywallView(
                 title: "Unlock Pro",
                 subtitle: "Everything you need, no limits.",
@@ -61,23 +96,105 @@ struct ContentView: View {
                     PaywallFeature(systemImage: "icloud", title: "Sync across your devices"),
                     PaywallFeature(systemImage: "nosign", title: "No ads, ever")
                 ],
-                configuration: configuration,
+                configuration: configuration(productIDs: allProductIDs),
                 provider: provider,
-                onPurchase: { productID in
-                    unlockedProductID = productID
-                    isPaywallPresented = false
-                },
-                onRestore: { productIDs in
-                    unlockedProductID = productIDs.first
-                }
+                onPurchase: purchased,
+                onRestore: restored
             )
-            .id(providerKind) // rebuild the paywall when the provider changes
+
+        case .comparison:
+            PaywallView(
+                configuration: configuration(productIDs: allProductIDs),
+                style: .comparison(rows: comparisonRows),
+                provider: provider,
+                onPurchase: purchased,
+                onRestore: restored
+            ) {
+                VStack(spacing: 10) {
+                    Image(systemName: "crown.fill")
+                        .font(.largeTitle)
+                        .foregroundStyle(.tint)
+                        .accessibilityHidden(true)
+                    Text("Go Pro")
+                        .font(.largeTitle.bold())
+                        .accessibilityAddTraits(.isHeader)
+                    Text("See what you get with Pro.")
+                        .foregroundStyle(.secondary)
+                }
+                .multilineTextAlignment(.center)
+            }
+
+        case .vault:
+            PaywallView(
+                configuration: configuration(productIDs: ["demo.monthly", "demo.yearly"]),
+                style: .vault,
+                provider: provider,
+                onPurchase: purchased,
+                onRestore: restored
+            ) {
+                VStack(spacing: 8) {
+                    Text("Unlock the Vault")
+                        .font(.title.bold())
+                        .accessibilityAddTraits(.isHeader)
+                    Text("All premium tools in one subscription.")
+                        .foregroundStyle(.secondary)
+                }
+                .multilineTextAlignment(.center)
+            }
+
+        case .stories:
+            PaywallView(
+                configuration: configuration(productIDs: ["demo.monthly", "demo.yearly"]),
+                style: .stories(pages: storyPages),
+                provider: provider,
+                onPurchase: purchased,
+                onRestore: restored
+            ) {
+                EmptyView()
+            }
         }
     }
 
-    private var configuration: PaywallConfiguration {
+    private var comparisonRows: [ComparisonRow] {
+        [
+            ComparisonRow(title: String(localized: "Projects"), free: .text("3"), pro: .text("∞")),
+            ComparisonRow(title: String(localized: "Cloud sync"), free: .notIncluded, pro: .included),
+            ComparisonRow(title: String(localized: "Export to PDF"), free: .notIncluded, pro: .included),
+            ComparisonRow(title: String(localized: "Themes"), free: .text("2"), pro: .text("20+")),
+            ComparisonRow(title: String(localized: "Ad-free"), free: .notIncluded, pro: .included)
+        ]
+    }
+
+    private var storyPages: [PaywallStoryPage] {
+        [
+            PaywallStoryPage(caption: String(localized: "Pro · 1 of 3"),
+                             title: String(localized: "Unlimited projects"),
+                             background: [Color(red: 0.20, green: 0.16, blue: 0.55), Color(red: 0.05, green: 0.04, blue: 0.18)]) {
+                StoryFeature(systemImage: "square.stack.3d.up.fill",
+                             text: "Create as many projects as you like.")
+            },
+            PaywallStoryPage(caption: String(localized: "Pro · 2 of 3"),
+                             title: String(localized: "Sync across your devices"),
+                             background: [Color(red: 0.02, green: 0.38, blue: 0.45), Color(red: 0.01, green: 0.10, blue: 0.16)]) {
+                StoryFeature(systemImage: "icloud.fill",
+                             text: "Your work follows you on iPhone and iPad.")
+            },
+            PaywallStoryPage(caption: String(localized: "Pro · 3 of 3"),
+                             title: String(localized: "No ads, ever"),
+                             background: [Color(red: 0.55, green: 0.18, blue: 0.30), Color(red: 0.16, green: 0.03, blue: 0.08)]) {
+                StoryFeature(systemImage: "sparkles",
+                             text: "A clean workspace with nothing in your way.")
+            }
+        ]
+    }
+
+    // MARK: Configuration
+
+    private let allProductIDs = ["demo.weekly", "demo.monthly", "demo.yearly"]
+
+    private func configuration(productIDs: [String]) -> PaywallConfiguration {
         PaywallConfiguration(
-            productIDs: ["demo.weekly", "demo.monthly", "demo.yearly"],
+            productIDs: productIDs,
             termsOfServiceURL: URL(string: "https://example.com/terms")!,
             privacyPolicyURL: URL(string: "https://example.com/privacy")!,
             preselectedProductID: "demo.yearly",
@@ -87,9 +204,21 @@ struct ContentView: View {
 
     private var provider: any PurchaseProvider {
         switch providerKind {
-        case .preview: return PreviewPurchaseProvider(products: demoProducts)
-        case .storeKit: return StoreKitPurchaseProvider()
+        case .preview:
+            let delay: Duration = Self.arguments.contains("-slowProducts") ? .seconds(3) : .milliseconds(600)
+            return PreviewPurchaseProvider(products: demoProducts, delay: delay)
+        case .storeKit:
+            return StoreKitPurchaseProvider()
         }
+    }
+
+    private func purchased(_ productID: String) {
+        unlockedProductID = productID
+        isPaywallPresented = false
+    }
+
+    private func restored(_ productIDs: Set<String>) {
+        unlockedProductID = productIDs.first
     }
 
     /// Fake products with localized names (the App Store would provide these in production).
@@ -103,6 +232,26 @@ struct ContentView: View {
                            price: Decimal(string: "599.99")!, currencyCode: "TRY", period: .yearly,
                            introductoryOffer: .freeTrial(.days(3)))
         ]
+    }
+}
+
+/// Icon + sentence used on the demo story pages.
+private struct StoryFeature: View {
+    let systemImage: String
+    let text: LocalizedStringKey
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Image(systemName: systemImage)
+                .font(.system(size: 64, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .accessibilityHidden(true)
+            Text(text)
+                .font(.title3)
+                .foregroundStyle(.white.opacity(0.85))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.top, 12)
     }
 }
 
