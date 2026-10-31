@@ -36,8 +36,8 @@ These guarantees hold for **every template**.
 | --- | --- |
 | **The billed amount is the most prominent price** (Guideline 3.1.2(c)) | `PlanCard` renders prices only through `PriceHierarchy`; there is no API to pass it arbitrary price text. The billed amount (`₺599,99/yıl`) is bold, primary color and the largest price style. Calculated equivalents (`≈ ₺11,54/hafta`) and trial descriptions are always regular weight, secondary color and a strictly smaller text style — `PriceTypography` lowers any style that would violate this. A weekly plan never shows a "weekly equivalent". |
 | **The close button is visible immediately** | `CloseButton` is drawn unconditionally in the first frame: no delay, no fade-in, no option to hide it. 44×44 pt hit area, VoiceOver label. |
-| **Restore, Terms and Privacy are always visible** | They live in a footer pinned to the bottom, outside the scroll view, and stay visible while loading, on error and while scrolling. `termsOfServiceURL` and `privacyPolicyURL` are non-optional. |
-| **Subscription terms are disclosed** | `SubscriptionDisclosure` shows the auto-renewal text (and the free trial terms when applicable) under the plans. |
+| **Restore, Terms and Privacy are always visible** | They live in an opaque area pinned to the bottom, outside the scroll view, and stay visible while loading, on error and while scrolling. The area is filled with the template's background color (with a 24 pt fade on top), so scrolled content never shows through it. `termsOfServiceURL` and `privacyPolicyURL` are non-optional. |
+| **Subscription terms are disclosed** | `SubscriptionDisclosure` shows the auto-renewal text (and the free trial terms when applicable) either directly below the plans or fully visible in the pinned area — never cut off behind it. |
 | **Trials state what is charged afterwards** | A trial plan shows "Free for 3 days, then $59.99/year" in addition to the billed amount. |
 
 ## Installation
@@ -165,7 +165,9 @@ PaywallView(title: "Unlock Pro", features: features, configuration: configuratio
 ### `.comparison`
 
 Dark background with gold accents, a Free vs. Pro table (the Pro column sits on a gold
-strip), a vertical plan list and a gold button.
+strip), a vertical plan list and a gold button. The preselected plan is listed first and the
+disclosure sits in the pinned area, so the table, the selected plan and the disclosure fit on
+the first screen of an iPhone 17 Pro.
 
 ```swift
 PaywallView(
@@ -184,7 +186,8 @@ PaywallView(
 
 Dark background, a glowing gold lock with two slowly rotating orbit rings, plans as a
 two-part segment (designed for two products) and a slide-to-confirm control instead of a
-button. Sliding past 85% plays a success haptic, opens the lock's shackle and starts the
+button. Prices on the compact plan cards stay on one line: the billed amount shrinks to at most
+80% (units are never abbreviated), and only while it stays larger than the secondary lines. Sliding past 85% plays a success haptic, opens the lock's shackle and starts the
 purchase; releasing earlier springs the thumb back.
 
 ```swift
@@ -210,17 +213,18 @@ SlideToConfirm(title: "Slide to confirm", buttonTitle: "Confirm") {
 
 ### `.stories`
 
-Full-screen pages with segmented progress bars. Each page lasts 5 seconds; tap the right side
-to go forward, the left side to go back, press and hold to pause. Plans, disclosure, button and
-links stay in a fixed bottom panel on every page, so users can buy before the story ends. The
-`header` closure is not shown — the pages are the content.
+Full-screen pages on multi-color gradients with segmented progress bars. Each page lasts 5
+seconds; tap the right side to go forward, the left side to go back, press and hold to pause.
+Page content can be interactive (the demo has a before/after slider). Plans, disclosure, button
+and links stay in an opaque, rounded bottom panel on every page, so users can buy before the
+story ends. The `header` closure is not shown — the pages are the content.
 
 ```swift
 PaywallView(
     configuration: configuration,
     style: .stories(pages: [
         PaywallStoryPage(caption: "Pro · 1 of 3", title: "Unlimited projects",
-                         background: [.indigo, .black]) {
+                         background: [.orange, .pink, .purple, .black]) {
             Image(systemName: "square.stack.3d.up.fill").font(.system(size: 64))
         },
         PaywallStoryPage(caption: "Pro · 2 of 3", title: "Sync everywhere",
@@ -379,7 +383,8 @@ open Examples/PaywallKitDemo/PaywallKitDemo.xcodeproj
 - A **Template** picker switches between Classic, Comparison, Vault and Stories.
 - Launch arguments: `-showPaywall` opens the paywall on launch, `-paywallStyle vault` (or
   `classic`, `comparison`, `stories`) picks the template, `-useStoreKit` starts with the StoreKit
-  provider, `-slowProducts` makes the fake provider take 3 seconds to load.
+  provider, `-slowProducts` makes the fake provider take 3 seconds to load, `-purchaseDelay 2.5`
+  sets how long the fake provider takes to load and purchase.
 
 The demo's bundle identifier is the placeholder `com.example.PaywallKitDemo`. Choose your own team
 in Signing & Capabilities to run it on a device.
