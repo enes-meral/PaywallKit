@@ -195,17 +195,21 @@ struct PinnedPaywallFooter<Content: View>: View {
                 .dynamicTypeSize(...DynamicTypeSize.accessibility1)
                 .background(fill.ignoresSafeArea(edges: .bottom))
         }
-        .accessibilityElement(children: .contain)
-        .modifier(OptionalIdentifier(identifier: identifier))
+        .modifier(PinnedAreaIdentity(identifier: identifier))
     }
 }
 
-private struct OptionalIdentifier: ViewModifier {
+/// Makes the pinned area an identified accessibility container. Without an identifier no
+/// container is created: nesting it inside another container (stories' panel) makes the
+/// buttons inside unreachable for accessibility hit-testing.
+private struct PinnedAreaIdentity: ViewModifier {
     let identifier: String?
 
     func body(content: Content) -> some View {
         if let identifier {
-            content.accessibilityIdentifier(identifier)
+            content
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier(identifier)
         } else {
             content
         }

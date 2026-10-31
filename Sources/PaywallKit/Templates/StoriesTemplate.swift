@@ -244,6 +244,10 @@ struct StoriesTemplate: View {
                 PaywallFooterLinks(model: model, items: traits.footerItems)
             }
         }
+        // Container before the shaped background: wrapping the background in the container
+        // hides the buttons from accessibility hit-testing.
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("paywall.pinnedFooter")
         .background(
             UnevenRoundedTop(radius: 28)
                 .fill(traits.footerFill)
@@ -251,8 +255,6 @@ struct StoriesTemplate: View {
                 .shadow(color: .black.opacity(0.35), radius: 18, y: -6)
                 .ignoresSafeArea(edges: .bottom)
         )
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("paywall.pinnedFooter")
     }
 
     private var planBlock: some View {
