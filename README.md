@@ -8,10 +8,19 @@ rejected**, in code rather than in a checklist you have to remember.
 
 - Swift 5.9+, iOS 16+, **no third-party dependencies**
 - StoreKit 2 out of the box, or plug in RevenueCat / Adapty / your own backend via `PurchaseProvider`
-- Light & dark mode, Dynamic Type, VoiceOver labels
+- Four ready-made templates: `.classic`, `.comparison`, `.vault`, `.stories`
+- Light & dark mode, Dynamic Type, VoiceOver labels, Reduce Motion
 - Localized in English and Turkish (String Catalog)
 
-## Screenshots
+| `.comparison` | `.vault` | `.stories` |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/template-comparison.png" width="240" alt="Comparison template: Free vs. Pro table with a gold Pro column"> | <img src="docs/screenshots/template-vault.png" width="240" alt="Vault template: glowing gold lock with orbit rings and a slide-to-confirm control"> | <img src="docs/screenshots/template-stories.png" width="240" alt="Stories template: full-screen story page with plans in a fixed bottom panel"> |
+
+<p align="center">
+  <img src="docs/vault.gif" width="300" alt="Vault template: sliding the control past 85% opens the lock and starts the purchase">
+</p>
+
+## Screenshots (`.classic`)
 
 | Light (English) | Light (Turkish) | Dark · Accessibility size |
 | :---: | :---: | :---: |
@@ -20,6 +29,8 @@ rejected**, in code rather than in a checklist you have to remember.
 _Screenshots from the demo app (fake products) on iPhone 17 Pro._
 
 ## What the rules look like in code
+
+These guarantees hold for **every template**.
 
 | App Review rule | How PaywallKit enforces it |
 | --- | --- |
@@ -134,6 +145,103 @@ PaywallConfiguration(
 If `secondary` is not strictly smaller than `billed`, it is lowered automatically (with a debug
 assertion). Use `PriceTypography.clamped(billed:secondary:)` to correct values silently, for
 example when they come from remote config.
+
+## Templates
+
+Pick a template with `style:`. The default is `.classic`, so existing code keeps working.
+Every template keeps the same guarantees: prices only through `PriceHierarchy`, a close button
+in the first frame, Restore / Terms / Privacy pinned outside the scroll area, and the
+subscription disclosure next to the plans. Templates never use fake countdowns, fake reviews
+or guilt-tripping copy.
+
+### `.classic`
+
+Header, vertical plan list, button. Follows light/dark mode and your `.tint`.
+
+```swift
+PaywallView(title: "Unlock Pro", features: features, configuration: configuration)
+```
+
+### `.comparison`
+
+Dark background with gold accents, a Free vs. Pro table (the Pro column sits on a gold
+strip), a vertical plan list and a gold button.
+
+```swift
+PaywallView(
+    configuration: configuration,
+    style: .comparison(rows: [
+        ComparisonRow(title: "Projects", free: .text("3"), pro: .text("∞")),
+        ComparisonRow(title: "Cloud sync", free: .notIncluded, pro: .included),
+        ComparisonRow(title: "Ad-free", free: .notIncluded, pro: .included)
+    ])
+) {
+    Text("Go Pro").font(.largeTitle.bold())
+}
+```
+
+### `.vault`
+
+Dark background, a glowing gold lock with two slowly rotating orbit rings, plans as a
+two-part segment (designed for two products) and a slide-to-confirm control instead of a
+button. Sliding past 85% plays a success haptic, opens the lock's shackle and starts the
+purchase; releasing earlier springs the thumb back.
+
+```swift
+PaywallView(
+    configuration: PaywallConfiguration(
+        productIDs: ["com.yourcompany.app.monthly", "com.yourcompany.app.yearly"],
+        termsOfServiceURL: termsURL,
+        privacyPolicyURL: privacyURL
+    ),
+    style: .vault
+) {
+    Text("Unlock the Vault").font(.title.bold())
+}
+```
+
+`SlideToConfirm` is public and works on its own:
+
+```swift
+SlideToConfirm(title: "Slide to confirm", buttonTitle: "Confirm") {
+    await doTheThing()
+}
+```
+
+### `.stories`
+
+Full-screen pages with segmented progress bars. Each page lasts 5 seconds; tap the right side
+to go forward, the left side to go back, press and hold to pause. Plans, disclosure, button and
+links stay in a fixed bottom panel on every page, so users can buy before the story ends. The
+`header` closure is not shown — the pages are the content.
+
+```swift
+PaywallView(
+    configuration: configuration,
+    style: .stories(pages: [
+        PaywallStoryPage(caption: "Pro · 1 of 3", title: "Unlimited projects",
+                         background: [.indigo, .black]) {
+            Image(systemName: "square.stack.3d.up.fill").font(.system(size: 64))
+        },
+        PaywallStoryPage(caption: "Pro · 2 of 3", title: "Sync everywhere",
+                         background: [.teal, .black])
+    ])
+) {
+    EmptyView()
+}
+```
+
+### Accessibility and Reduce Motion
+
+| | VoiceOver | Accessibility text sizes | Reduce Motion |
+| --- | --- | --- | --- |
+| All templates | Plan cards read as one element ("Yearly, $59.99 per year, …"); decorative art is hidden | Pinned footer and close button capped at `accessibility1` so they never cover the screen; plans stack vertically | — |
+| `.vault` | `SlideToConfirm` becomes a regular button; the slider also supports the default action (double-tap) | `SlideToConfirm` becomes a regular button | Orbit rings don't rotate; the lock crossfades open instead of moving |
+| `.stories` | No auto-advance; Previous / Next buttons appear | Plan area scrolls inside the fixed panel | No auto-advance (Previous / Next buttons), page changes crossfade |
+
+Animations run only while the paywall is on screen (they stop in `onDisappear`). There is no
+continuous `TimelineView` loop: the rings use a `repeatForever` rotation and the story progress
+bar is a single linear animation per page.
 
 ## Using RevenueCat or another backend
 
@@ -268,8 +376,10 @@ open Examples/PaywallKitDemo/PaywallKitDemo.xcodeproj
 - **Preview (fake)** provider — works anywhere, no store needed.
 - **StoreKit (local .storekit)** provider — uses `PaywallKitDemo.storekit`, which the shared
   scheme activates when you run from Xcode.
-- Launch arguments: `-showPaywall` opens the paywall on launch, `-useStoreKit` starts with the
-  StoreKit provider.
+- A **Template** picker switches between Classic, Comparison, Vault and Stories.
+- Launch arguments: `-showPaywall` opens the paywall on launch, `-paywallStyle vault` (or
+  `classic`, `comparison`, `stories`) picks the template, `-useStoreKit` starts with the StoreKit
+  provider, `-slowProducts` makes the fake provider take 3 seconds to load.
 
 The demo's bundle identifier is the placeholder `com.example.PaywallKitDemo`. Choose your own team
 in Signing & Capabilities to run it on a device.
